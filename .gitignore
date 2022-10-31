@@ -1,0 +1,6 @@
+.idea
+.env
+static
+media
+pgdata
+db.sqlite3
