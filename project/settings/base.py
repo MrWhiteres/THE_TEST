@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from pathlib import Path
 from os import getenv, path
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,7 +32,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+LOCAL_APPS = [
+    'project.apps.user_profile'
+]
+
+INSTALLED_APPS = DEFAULT_APPS + LOCAL_APPS
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+AUTH_PROFILE_MODULE = 'project.apps.user_profile.UserProfile'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
