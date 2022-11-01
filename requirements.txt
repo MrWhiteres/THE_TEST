@@ -4,3 +4,4 @@ python-dotenv==0.21.0
 sqlparse==0.4.3
 tzdata==2022.6
 psycopg2-binary==2.9.5
+Pillow==9.3.0

@@ -1,6 +1,9 @@
 .idea
 .env
+.fleet
+*.html
 static
 media
 pgdata
 db.sqlite3
+__pycache__
