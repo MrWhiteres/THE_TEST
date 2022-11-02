@@ -41,9 +41,5 @@ def worker(list_user, full_data):
                 profile = UserProfile.objects.get(user=users.id)
                 profile.avatar_urls = full_data['avatar_url']
                 profile.save()
-                profile.save()
-                profile.save()
-                profile.save()
-                profile.save()
-                print(profile.avatar_urls, profile, profile.avatar)
+                return
 
