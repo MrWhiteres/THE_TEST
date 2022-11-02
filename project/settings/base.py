@@ -49,7 +49,12 @@ LOCAL_APPS = [
     'project.apps.user_profile'
 ]
 
-INSTALLED_APPS = DEFAULT_APPS + LOCAL_APPS + OTHER_APPS
+CHANGED_APPS = [
+    'jet',
+    'jet.dashboard'
+]
+
+INSTALLED_APPS = CHANGED_APPS + DEFAULT_APPS + LOCAL_APPS + OTHER_APPS
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -70,7 +75,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [path.join(BASE_DIR/'project', 'templates'),],
+        'DIRS': [path.join(BASE_DIR / 'project', 'templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
