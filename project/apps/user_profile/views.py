@@ -1,22 +1,20 @@
 """
 This module contains all views.
 """
+import csv
+
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.tokens import default_token_generator as token_generator
 from django.contrib.auth.views import LoginView
-from django.core.exceptions import ValidationError
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.utils.http import urlsafe_base64_decode
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView, FormView
 
-from apps.authentication.forms import UserCreationForm, User, AuthenticationForm
-from apps.authentication.tasks import send_email_for_verify
-from apps.sant.mixins import CartMixin
+from .forms import UserCreationForm, AuthenticationForm, UploadCSVDataForm, UploadXMLDataForm
+from .models import UserProfile
+from .utils import check_save_data_csv, check_save_data_xml
 
 
-class Register(CartMixin, View):
+class Register(View):
     """
     Views for new user registration.
     """
@@ -28,7 +26,6 @@ class Register(CartMixin, View):
         """
         context = {
             'form': UserCreationForm(),
-            'cart': self.cart
         }
         return render(request, self.template_name, context)
 
@@ -39,14 +36,13 @@ class Register(CartMixin, View):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            email = form.cleaned_data.get('email')
+            username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
-            user = authenticate(email=email, password=password)
-            send_email_for_verify(request, user)
-            return redirect('confirm_email')
+            login_user =authenticate(username=username, password=password)
+            login(request, login_user)
+            return redirect('base')
         context = {
             'form': form,
-            'cart': self.cart
         }
         return render(request, self.template_name, context)
 
@@ -55,7 +51,7 @@ class ProfileView(DetailView):
     """
     User profile views.
     """
-    model = User
+    model = UserProfile
     context_object_name = 'profile'
     template_name = 'profile.html'
 
@@ -67,41 +63,49 @@ class MyLoginView(LoginView):  # pylint: disable=too-many-ancestors
     form_class = AuthenticationForm
 
 
-class LoginAjaxView(View):
-    """
-    Login with ajax forms.
-    """
+class BasePageView(ListView):
+    def get(self, request, *args, **kwargs):
+        users = UserProfile.objects.all()
+        context = {
+            'profiles': users
+        }
+        return render(request, 'base.html', context)
 
-    def post(self, request):
-        """
-        The user authorization method checks if the user is in the database
-         and checks if there are any errors.
-        """
-        email = request.POST.get('email')
-        password = request.POST.get('password')
 
-        if email and password:
-            user = authenticate(email=email, password=password)
-            if user:
-                login(request, user)
-                return JsonResponse(
-                    data={
-                        'status': 201
-                    },
-                    status=200
-                )
-            return JsonResponse(
-                data={
-                    'status': 400,
-                    'error': 'Пароль и логин не валидные'
-                },
-                status=200
-            )
-        return JsonResponse(
-            data={
-                'status': 400,
-                'error': 'Введите логин и пароль'
-            },
-            status=200
-        )
+class UploadCSVView(FormView):
+    template_name = 'upload_csv.html'
+
+    def get(self, request, **kwargs):
+        context = {
+            'form': UploadCSVDataForm(),
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, **kwargs):
+        form = UploadCSVDataForm(request.POST, request.FILES)
+
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': UploadCSVDataForm})
+        check_save_data_csv(csv.DictReader(request.FILES['csv_file'].read().decode('utf-8').splitlines()))
+
+        return redirect('base')
+
+
+class UploadXMLView(FormView):
+    template_name = 'upload_xml.html'
+
+    def get(self, request, **kwargs):
+        context = {
+            'form': UploadXMLDataForm(),
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, **kwargs):
+        form = UploadXMLDataForm(request.POST, request.FILES)
+
+        if not form.is_valid():
+            return render(request, self.template_name, {'form': UploadXMLDataForm})
+
+        check_save_data_xml(request.FILES['xml_file'])
+        return redirect('base')
 

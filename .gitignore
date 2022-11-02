@@ -1,7 +1,6 @@
 .idea
 .env
 .fleet
-*.html
 static
 media
 pgdata
