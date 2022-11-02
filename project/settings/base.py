@@ -41,11 +41,15 @@ DEFAULT_APPS = [
     'django.contrib.staticfiles',
 ]
 
+OTHER_APPS = [
+    'widget_tweaks'
+]
+
 LOCAL_APPS = [
     'project.apps.user_profile'
 ]
 
-INSTALLED_APPS = DEFAULT_APPS + LOCAL_APPS
+INSTALLED_APPS = DEFAULT_APPS + LOCAL_APPS + OTHER_APPS
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
@@ -66,7 +70,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [path.join(BASE_DIR/'project', 'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
